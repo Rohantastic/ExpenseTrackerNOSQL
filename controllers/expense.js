@@ -2,6 +2,7 @@ const path = require('path');
 const ExpenseModel = require('../models/expense');
 const UserModel = require('../models/User');
 const mongoose = require('mongoose');
+const AWS = require('aws-sdk');
 
 exports.addExpense = (req, res, next) => {
   const string = path.join(__dirname, '../', '/views/addExpense.html');
@@ -151,26 +152,54 @@ exports.getYearlyExpense = async (req, res, next) => {
 };
 
 
-async function uploadToS3(data, filename) {
-  // Add your S3 upload logic here, if needed
+async function uploadToS3(data, filename) { //data has all the expenses
+  const BUCKET_NAME = process.env.AWS_BUCKET_NAME;
+  const IAM_USER_KEY = process.env.IAM_USER_KEY;
+  const IAM_USER_SECRET = process.env.IAM_USER_SECRET;
+
+  const s3bucket = new AWS.S3({
+      accessKeyId: IAM_USER_KEY,
+      secretAccessKey: IAM_USER_SECRET,
+      Bucket: BUCKET_NAME
+  });
+
+  const params = {
+      Bucket: BUCKET_NAME,
+      Key: filename,
+      Body: data,
+      ACL: 'public-read' //so that it should be accessible to all
+  };
+
+  try {
+      const s3response = await s3bucket.upload(params).promise(); //it returns promise, first we uploading and then returning promise
+      console.log('success', s3response); //printing if we get successful response
+      return s3response.Location; //getting the link returning it
+  } catch (err) {
+      console.log(err); //else get the error
+  }
+
 }
 
 exports.downloadExpense = async (req, res, next) => {
-  const userId = req.user._id;
+  const userId = req.user._id; // Fetching user ID from auth middleware
 
   try {
-    const expenses = await ExpenseModel.find({ userId });
-    if (expenses) {
-      const stringifiedExpenses = JSON.stringify(expenses);
-      const filename = `Expense${userId}/${new Date()}.txt`;
+      const expenses = await ExpenseModel.find({ userId }); // Find all expenses for the user
 
-      // Uncomment the following line to upload the file to S3
-      // const fileURL = await uploadToS3(stringifiedExpenses, filename);
+      if (expenses) {
+          const stringifiedExpenses = JSON.stringify(expenses);
+          const filename = `Expense${userId}/${new Date()}.txt`;
 
-      return res.status(200).json({ fileURL: '', success: true, fileHistory: [filename] });
-    }
+          const object = [];
+          object.push(filename);
+
+          // Replace the following function with your file upload logic for MongoDB
+          const fileURL = await uploadToS3(stringifiedExpenses, filename);
+
+          return res.status(200).json({ fileURL, success: true, fileHistory: object });
+      }
   } catch (err) {
-    console.log(err);
-    return res.status(500).json({ error: "error in downloading" });
+      console.log(err);
+      return res.status(500).json({ error: "Error in downloading" });
   }
 };
