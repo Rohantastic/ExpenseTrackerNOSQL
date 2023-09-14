@@ -1,14 +1,16 @@
-const Sequelize = require('sequelize');
-const database = require('../config/database');
+const mongoose = require('mongoose');
 
-const PasswordRequest = database.define('passwordrequest',{
-    id: {
-        type: Sequelize.UUID,
-        allowNull: false,
-        primaryKey: true
-    },
-    active: Sequelize.BOOLEAN,
+const passwordRequestSchema = new mongoose.Schema({
+  id: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  active: Boolean
+},{
+  timestamps: true, 
 });
 
+const PasswordRequest = mongoose.model('PasswordRequest', passwordRequestSchema);
 
 module.exports = PasswordRequest;

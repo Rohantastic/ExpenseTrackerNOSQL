@@ -17,16 +17,21 @@ var token = localStorage.getItem('token');
         document.addEventListener('DOMContentLoaded', async () => {
             try {
 
-                token = localStorage.getItem('token');
+                tokenizer = localStorage.getItem('token');
 
-                const decodedToken = parseJwt(token);
+                const decodedToken = parseJwt(tokenizer);
 
+                console.log("DomContentLoaded ",token);
 
                 const isTrue = decodedToken.ispremiumuser;
+                console.log('decodedTokenvalue: ', decodedToken);
+                console.log('isTrue value decodedToken.ispremiumuser ', isTrue);
 
                 if (isTrue === true) {
+                    console.log('>>>>setting ispremiumuser true');
                     localStorage.setItem('isPremiumUser', 'true');
                 } else {
+                    console.log('>>>>setting ispremiumuser false');
                     localStorage.setItem('isPremiumUser', 'false');
                 }
 
@@ -182,10 +187,14 @@ var token = localStorage.getItem('token');
             }
             const expenseDetails = {
                 expense: e.target.expense.value,
-                description: e.target.description.value,
                 category: category,
+                description: e.target.description.value,
+                
             }
+
+            console.log('Expense Details:', expenseDetails);
             //sending post call to store details in database
+            console.log('>>>Tokennn before post: ', token);
             axios.post('http://localhost:3000/expense/addExpense', expenseDetails, { headers: { "Authorization": token } }).then((response) => {
                 if (response.status === 201) {
                     //fetchDataFromDatabase(); //fetching the data from database (retrieving).
@@ -231,25 +240,42 @@ var token = localStorage.getItem('token');
             }
         }
 
-        function showDataFromDatabase(expense) { //function to display data
+        function showDataFromDatabase(expense) {
             const manifest = document.getElementById('manifest');
             manifest.innerHTML = '';
             expense.forEach((element) => {
-                let string = `<li> Expense: ${element.expense} || Category: ${element.category} || Description: ${element.description} || <button onclick="deleteExpense(${element.id})"> Delete </button> </li>`;
+                console.log(element._id);
+                let string = `<li> Expense: ${element.expense} || Category: ${element.category} || Description: ${element.description} || <button data-id="${element._id}" class="delete-button"> Delete </button> </li>`;
                 manifest.innerHTML += string;
+            });
+
+            // Add event listeners to the delete buttons
+            const deleteButtons = document.querySelectorAll('.delete-button');
+            deleteButtons.forEach((button) => {
+                button.addEventListener('click', () => {
+                    const id = button.getAttribute('data-id');
+                    deleteExpense(id);
+                });
             });
         }
 
 
         //function to delete the expense from database
-        async function deleteExpense(id) {
-            const response = await axios.delete(`http://localhost:3000/expense/deleteExpense/${id}`, { headers: { "Authorization": token } });
-            if (response.status === 204) {
-                fetchDataFromDatabase();
-                console.log("Deleted");
-            } else {
-                const errorDiv = document.getElementsByClassName('errorDiv');
-                errorDiv.innerHTML = ` <p style="color:red;"> Error Deleting, User UnAuthorized!! </p> `;
+        async function deleteExpense(_id) {
+            console.log("Id in delete function:", _id);
+
+            try {
+                const response = await axios.delete(`http://localhost:3000/expense/deleteExpense/${_id}`, { headers: { "Authorization": token } });
+                
+                if (response.status === 204) {
+                    fetchDataFromDatabase();
+                    console.log("Deleted");
+                } else {
+                    const errorDiv = document.getElementById('errorDiv');
+                    errorDiv.innerHTML = `<p style="color:red;"> Error Deleting, User UnAuthorized!! </p>`;
+                }
+            } catch (error) {
+                console.error("Error:", error);
             }
         }
 
@@ -272,7 +298,8 @@ var token = localStorage.getItem('token');
                     document.getElementById('premiumUserMessage').innerHTML = `<p style="color:gold;">Premium User</p>`;
                     document.getElementById('razorPayButton').style.visibility = 'hidden';
 
-
+                    console.log('>>>after pressing download button, what comes as token? ', responseOfAxiosPost.data.token);
+                    localStorage.setItem('isPremiumUser', 'true');
                     localStorage.setItem('token', responseOfAxiosPost.data.token)
 
 

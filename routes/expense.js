@@ -14,8 +14,10 @@ route.post('/addExpense',authentication.authenticate,ExpenseController.postExpen
 //fetching the expenses from database
 route.get('/getExpenses', authentication.authenticate ,ExpenseController.getExpenses);
 
+
+
 //deleting the expense through id
-route.delete('/deleteExpense/:id',authentication.authenticate, ExpenseController.deleteExpense);
+route.delete('/deleteExpense/:_id',authentication.authenticate, ExpenseController.deleteExpense);
 
 
 //to show specific expense list

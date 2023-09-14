@@ -9,53 +9,46 @@ const ExpenseRoute = require('./routes/expense');
 const PurchaseRoute = require('./routes/purchase');
 const PremiumRoute = require('./routes/premium');
 const bodyParser = require('body-parser');
-const sequelize = require('./config/database');
-const User = require('./models/User');
-const Expense = require('./models/expense');
-const Order = require('./models/Orders');
-const PasswordRequest = require('./models/ForgotPasswordRequests');
+const mongoose = require('mongoose');
 const path = require('path');
+const db = require('./config/database'); // Import your database configuration
+
+// Import your models
+const User = require('./models/User');
+const ExpenseModel = require('./models/expense'); // Import the Expense model
+const OrderModel = require('./models/Orders');
+const PasswordRequestModel = require('./models/ForgotPasswordRequests');
 
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-//flag:a,  a means append
-const accessLogStream = fs.createWriteStream(path.join(__dirname,'access.log'),{flags:'a'});//creating a log files to view all console logs on a log file
+const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
 
-//routes
 app.use('/user', UserRoute);
 app.use('/expense', ExpenseRoute);
-app.use('/purchase',PurchaseRoute);
-app.use('/premium',PremiumRoute);
-app.use(helmet()); //gives security to headers
-app.use(compression()); //compresses the files over network
-app.use(morgan('combined',{ stream: accessLogStream})); //morgan helps log on terminal or file, than that of console(which makes systen laggy)
+app.use('/purchase', PurchaseRoute);
+app.use('/premium', PremiumRoute);
+app.use(helmet());
+app.use(compression());
+app.use(morgan('combined', { stream: accessLogStream }));
 
+// Define MongoDB relations - Mongoose style
+const ExpenseSchema = new mongoose.Schema({
+    // Expense schema fields here
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }
+});
 
-//database relations
-User.hasMany(Expense);
-Expense.belongsTo(User);
-
-User.hasMany(Order);
-Order.belongsTo(User);
-
-User.hasMany(PasswordRequest);
-PasswordRequest.belongsTo(User);
-
-
-// Synchronizing the tables with the database
-sequelize.sync()
-    .then(() => {
-        console.log('Database synced successfully');
-    })
-    .catch(err => {
-        console.error('Error syncing database:', err);
-    });
-
+// Start the Express app
 const port = process.env.PORT || 3000;
 
 app.listen(port, (err) => {
-    console.log('Server Initialised...');
-    console.error(err);
+    if (err) {
+        console.error('Error starting the server:', err);
+    } else {
+        console.log('Server Initialized...');
+    }
 });

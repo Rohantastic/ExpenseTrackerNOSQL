@@ -1,20 +1,11 @@
-//table for premium purchase from razorpay
-const Sequelize = require('sequelize');
-const sequelizeDatabase = require('../config/database');
+const mongoose = require('mongoose');
 
-const Order = sequelizeDatabase.define('order',{
-    id: {
-        type: Sequelize.DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
-        unique:true
-    },
-    paymentid: Sequelize.DataTypes.STRING,
-    orderid: Sequelize.DataTypes.STRING,
-    status: Sequelize.DataTypes.STRING
-},{
-    timestamps:false
+const orderSchema = new mongoose.Schema({
+  paymentid: String,
+  orderid: String,
+  status: String
 });
 
+const Order = mongoose.model('Order', orderSchema);
 
 module.exports = Order;

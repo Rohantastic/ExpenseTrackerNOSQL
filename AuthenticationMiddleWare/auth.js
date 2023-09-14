@@ -1,19 +1,30 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
+// Middleware to authenticate users
+exports.authenticate = async (req, res, next) => {
+    try {
+        const token = req.header('Authorization'); // Assuming the token is sent in the 'Authorization' header
 
-//to decrypt the token
-exports.authenticate = async (req,res,next)=>{
-    try{
-        const token = req.header('authorization');
-        const userObject = jwt.verify(token,process.env.JWT_TOKEN);
-        const user = await User.findByPk(userObject.userId);
-        if(user){
-            req.user = userObject;
-            next();
+        if (!token) {
+            return res.status(401).json({ error: 'Authorization token missing' });
         }
-    }catch(err){
-        console.log('>>>>>>>>>>>>in catch block of auth.js because we didnt get the user from userObject.userId');
-        return res.status(500).json({error:"something wrong in authenticating"});
+
+        const decodedToken = jwt.verify(token, process.env.JWT_TOKEN);
+
+        // Find the user in the database based on the decoded token
+        const user = await User.findById(decodedToken.userId);
+
+        if (!user) {
+            return res.status(401).json({ error: 'User not found' });
+        }
+
+        // Attach the user object to the request
+        req.user = user;
+        console.log('>>>>auth success moving to controller with his id', req.user);
+        next();
+    } catch (err) {
+        console.error('Error in authentication middleware:', err);
+        return res.status(500).json({ error: 'Something went wrong in authenticating' });
     }
 };
