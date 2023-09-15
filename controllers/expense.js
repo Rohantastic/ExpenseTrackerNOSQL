@@ -12,7 +12,7 @@ exports.addExpense = (req, res, next) => {
 exports.postExpense = async (req, res, next) => {
   const { expense, category, description } = req.body;
   
-  // Ensure req.user.userId is a valid ObjectId string
+  
   const userId = new mongoose.Types.ObjectId(req.user._id);
 
   console.log('>>>>>>>>>>>>userId in postExpenses', userId);
@@ -110,7 +110,7 @@ exports.getDailyExpense = async (req, res, next) => {
   const userId = req.user._id;
   const today = new Date();
   const yesterday = new Date(today);
-  yesterday.setDate(today.getDate() - 1); // Calculate the date 1 day ago
+  yesterday.setDate(today.getDate() - 1); 
 
   try {
     const dailyExpenses = await ExpenseModel.find({
@@ -133,7 +133,7 @@ exports.getYearlyExpense = async (req, res, next) => {
   const userId = req.user._id;
   const today = new Date();
   const oneYearAgo = new Date(today);
-  oneYearAgo.setFullYear(today.getFullYear() - 1); // Calculate the date 1 year ago
+  oneYearAgo.setFullYear(today.getFullYear() - 1); 
 
   try {
     const yearlyExpenses = await ExpenseModel.find({
@@ -152,7 +152,7 @@ exports.getYearlyExpense = async (req, res, next) => {
 };
 
 
-async function uploadToS3(data, filename) { //data has all the expenses
+async function uploadToS3(data, filename) { 
   const BUCKET_NAME = process.env.AWS_BUCKET_NAME;
   const IAM_USER_KEY = process.env.IAM_USER_KEY;
   const IAM_USER_SECRET = process.env.IAM_USER_SECRET;
@@ -167,7 +167,7 @@ async function uploadToS3(data, filename) { //data has all the expenses
       Bucket: BUCKET_NAME,
       Key: filename,
       Body: data,
-      ACL: 'public-read' //so that it should be accessible to all
+      ACL: 'public-read' 
   };
 
   try {
@@ -193,7 +193,7 @@ exports.downloadExpense = async (req, res, next) => {
           const object = [];
           object.push(filename);
 
-          // Replace the following function with your file upload logic for MongoDB
+          
           const fileURL = await uploadToS3(stringifiedExpenses, filename);
 
           return res.status(200).json({ fileURL, success: true, fileHistory: object });

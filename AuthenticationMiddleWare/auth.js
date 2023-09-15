@@ -4,7 +4,7 @@ const User = require('../models/User');
 // Middleware to authenticate users
 exports.authenticate = async (req, res, next) => {
     try {
-        const token = req.header('Authorization'); // Assuming the token is sent in the 'Authorization' header
+        const token = req.header('Authorization'); 
 
         if (!token) {
             return res.status(401).json({ error: 'Authorization token missing' });

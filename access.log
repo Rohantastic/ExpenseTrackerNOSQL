@@ -11,3 +11,4 @@
 ::1 - - [13/Sep/2023:14:20:37 +0000] "GET /favicon.ico HTTP/1.1" 404 150 "http://localhost:3000/user/login" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36"
 ::ffff:127.0.0.1 - - [14/Sep/2023:04:26:36 +0000] "GET /favicon.ico HTTP/1.1" 404 150 "http://127.0.0.1:3000/user/login" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36"
 ::1 - - [14/Sep/2023:04:27:38 +0000] "GET /favicon.ico HTTP/1.1" 404 150 "http://localhost:3000/user/login" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36"
+::1 - - [15/Sep/2023:04:15:24 +0000] "GET /favicon.ico HTTP/1.1" 404 150 "http://localhost:3000/user/login" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36"
